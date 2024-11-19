@@ -1,35 +1,46 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { FileTypes } from 'src/common/constants/file-types.enum';
-import { SummarizerService } from './summarizer.service';
-import { DocxService } from './services/docx.service';
-import { OpenAIService } from '../model/openai.service';
-import { PdfService } from './services/pdf.service';
+import { Logger } from '@nestjs/common';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
-@Injectable()
-export class SummarizerGateway {
-  constructor(
-    private readonly docxService: DocxService,
-    private readonly openaiService: OpenAIService,
-    private readonly pdfService: PdfService,
-  ) {}
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
+export class SummarizerGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+{
+  @WebSocketServer()
+  public server: Server;
+  private readonly logger = new Logger(SummarizerGateway.name);
 
-  async summarizeFromFile(file?: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('File is required');
-    }
-    const handlers: Record<FileTypes, SummarizerService> = {
-      [FileTypes.DOCX]: this.docxService,
-      [FileTypes.PDF]: this.pdfService,
-    };
-    const handler = handlers[file.mimetype];
-    if (!handler) {
-      throw new BadRequestException('Unsupported file type');
-    }
-    return handler.summarize(file.buffer);
+  constructor() {}
+
+  async afterInit(server: Server) {
+    this.server = server;
+    this.logger.debug('Initialized');
   }
 
-  async summarizeFromText(text: string) {
-    const summary = await this.openaiService.getAnswer(text);
-    return { summary };
+  async handleConnection(client: Socket) {
+    this.logger.debug(`Client connected: ${client.id}`);
+  }
+
+  async handleDisconnect(client: Socket) {
+    this.logger.debug(`Client disconnected: ${client.id}`);
+  }
+
+  async emitJobPosition(jobId: string, position: number) {
+    this.server.emit('position', { jobId, position });
+  }
+
+  async emitJobCompletion(jobId: string, summary: string) {
+    this.server.emit('summary', { jobId, summary });
   }
 }

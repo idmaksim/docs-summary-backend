@@ -5,4 +5,5 @@ export default () => ({
   REFRESH_SECRET: process.env.REFRESH_SECRET,
   AI_API_KEY: process.env.AI_API_KEY,
   AI_API_URL: process.env.AI_API_URL,
+  REDIS_URL: process.env.REDIS_URL,
 });
