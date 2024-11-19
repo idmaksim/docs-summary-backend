@@ -5,10 +5,11 @@ import { SummarizerGateway } from './summarizer.gateway';
 import { DocxService } from './services/docx.service';
 import { ModelModule } from '../model/model.module';
 import { UsersModule } from '../users/users.module';
+import { PdfService } from './services/pdf.service';
 
 @Module({
   imports: [ModelModule, UsersModule],
   controllers: [SummarizerController],
-  providers: [SummarizerGateway, DocxService],
+  providers: [SummarizerGateway, DocxService, PdfService],
 })
 export class SummarizerModule {}

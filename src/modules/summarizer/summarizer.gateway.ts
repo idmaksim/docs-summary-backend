@@ -3,12 +3,14 @@ import { FileTypes } from 'src/common/constants/file-types.enum';
 import { SummarizerService } from './summarizer.service';
 import { DocxService } from './services/docx.service';
 import { OpenAIService } from '../model/openai.service';
+import { PdfService } from './services/pdf.service';
 
 @Injectable()
 export class SummarizerGateway {
   constructor(
     private readonly docxService: DocxService,
     private readonly openaiService: OpenAIService,
+    private readonly pdfService: PdfService,
   ) {}
 
   async summarizeFromFile(file?: Express.Multer.File) {
@@ -17,6 +19,7 @@ export class SummarizerGateway {
     }
     const handlers: Record<FileTypes, SummarizerService> = {
       [FileTypes.DOCX]: this.docxService,
+      [FileTypes.PDF]: this.pdfService,
     };
     const handler = handlers[file.mimetype];
     if (!handler) {
