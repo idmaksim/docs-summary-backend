@@ -35,6 +35,7 @@ export class SummarizerGateway
 
   private async getUserFromClient(client: Socket) {
     const token = client.handshake.headers.authorization?.split(' ')[1];
+    this.logger.debug(`Token: ${token}`);
     if (token) {
       try {
         const payload = await this.tokenService.verifyAccessToken(token);
@@ -55,6 +56,7 @@ export class SummarizerGateway
       client.join(user.id);
       return;
     }
+    this.logger.error('Invalid token');
     client.emit('error', { message: 'Invalid token' });
     client.disconnect();
   }

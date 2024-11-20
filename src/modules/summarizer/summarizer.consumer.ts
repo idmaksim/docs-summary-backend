@@ -52,6 +52,7 @@ export class SummarizerConsumer extends WorkerHost {
       [FileTypes.DOCX]: this.extractTextFromDocx.bind(this),
       [FileTypes.PDF]: this.extractTextFromPdf.bind(this),
       [FileTypes.DOC]: this.extractTextFromDocx.bind(this),
+      [FileTypes.TXT]: this.extractTextFromTxt.bind(this),
     };
     const handler = handlers[file.mimetype];
     if (!handler) {
@@ -76,5 +77,12 @@ export class SummarizerConsumer extends WorkerHost {
     const buffer = Buffer.from(file.buffer.data);
     const result = await pdf(buffer);
     return result.text;
+  }
+
+  private async extractTextFromTxt(
+    file: Express.Multer.File & { buffer: { data: number[]; type: string } },
+  ) {
+    const buffer = Buffer.from(file.buffer.data);
+    return buffer.toString();
   }
 }
