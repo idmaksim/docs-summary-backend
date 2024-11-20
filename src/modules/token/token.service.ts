@@ -28,6 +28,17 @@ export class TokenService {
     );
   }
 
+  async verifyAccessToken(token: string): Promise<JwtPayload> {
+    try {
+      return this.jwtService.verify(token, {
+        secret: this.configService.get('ACCESS_SECRET'),
+      });
+    } catch (error) {
+      this.logger.error(`Ошибка проверки токена доступа: ${error.message}`);
+      throw new UnauthorizedException();
+    }
+  }
+
   async verifyRefreshToken(token: string): Promise<JwtPayload> {
     try {
       this.logger.log(`Проверка токена обновления: ${token}`);

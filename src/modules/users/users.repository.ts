@@ -26,7 +26,7 @@ export class UsersRepository {
     return !!user;
   }
 
-  async findOneByUuid(id: string) {
+  async findOneById(id: string) {
     return this.prismaService.user.findUnique({
       where: { id },
     });

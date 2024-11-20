@@ -6,6 +6,7 @@ import { SummarizerGateway } from './summarizer.gateway';
 import { SummarizerConsumer } from './summarizer.consumer';
 import { BullModule } from '@nestjs/bullmq';
 import { SummarizerController } from './summarizer.controller';
+import { TokenModule } from '../token/token.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SummarizerController } from './summarizer.controller';
     BullModule.registerQueue({
       name: 'summarizer',
     }),
+    TokenModule,
   ],
   controllers: [SummarizerController],
   providers: [SummarizerDispatcher, SummarizerGateway, SummarizerConsumer],

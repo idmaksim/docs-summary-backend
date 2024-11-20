@@ -24,7 +24,7 @@ export class SummarizerConsumer extends WorkerHost {
       throw new BadRequestException('Invalid job name');
     }
     const result = await processor(job);
-    this.gateway.emitJobCompletion(job.id, result.summary);
+    this.gateway.emitJobCompletion(job.id, result.summary, job.data.userId);
     return result;
   }
 
