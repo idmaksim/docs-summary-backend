@@ -1,15 +1,23 @@
 import { Module } from '@nestjs/common';
-import { SummarizerService } from './summarizer.service';
-import { SummarizerController } from './summarizer.controller';
-import { SummarizerGateway } from './summarizer.gateway';
-import { DocxService } from './services/docx.service';
+import { SummarizerDispatcher } from './summarizer.dispatcher';
 import { ModelModule } from '../model/model.module';
 import { UsersModule } from '../users/users.module';
-import { PdfService } from './services/pdf.service';
+import { SummarizerGateway } from './summarizer.gateway';
+import { SummarizerConsumer } from './summarizer.consumer';
+import { BullModule } from '@nestjs/bullmq';
+import { SummarizerController } from './summarizer.controller';
+import { TokenModule } from '../token/token.module';
 
 @Module({
-  imports: [ModelModule, UsersModule],
+  imports: [
+    ModelModule,
+    UsersModule,
+    BullModule.registerQueue({
+      name: 'summarizer',
+    }),
+    TokenModule,
+  ],
   controllers: [SummarizerController],
-  providers: [SummarizerGateway, DocxService, PdfService],
+  providers: [SummarizerDispatcher, SummarizerGateway, SummarizerConsumer],
 })
 export class SummarizerModule {}

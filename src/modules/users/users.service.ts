@@ -36,12 +36,15 @@ export class UsersService {
     return includePassword ? user : this.excludePassword(user);
   }
 
-  async findOneByUuid(
-    uuid: string,
+  async findOneById(
+    id: string,
     includePassword = false,
+    catchError = true,
   ): Promise<UserWithoutPassword | User> {
-    const user = await this.usersRepository.findOneByUuid(uuid);
-    await this.ensureUserNotNull(user);
+    const user = await this.usersRepository.findOneById(id);
+    if (catchError) {
+      await this.ensureUserNotNull(user);
+    }
     return includePassword ? user : this.excludePassword(user);
   }
 
@@ -64,7 +67,7 @@ export class UsersService {
   }
 
   private async ensureExistsByUuid(uuid: string) {
-    const user = await this.usersRepository.findOneByUuid(uuid);
+    const user = await this.usersRepository.findOneById(uuid);
     if (!user) {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
