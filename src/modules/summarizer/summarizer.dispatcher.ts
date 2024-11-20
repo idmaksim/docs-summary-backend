@@ -12,7 +12,11 @@ export class SummarizerDispatcher {
   ) {}
 
   async summarizeFromText(text: string, userId: string) {
-    const job = await this.queue.add('text', { text, userId });
+    const job = await this.queue.add(
+      'text',
+      { text, userId },
+      { removeOnComplete: true, removeOnFail: true },
+    );
     this.gateway.emitJobPosition(
       job.id,
       await this.getJobPosition(job),
@@ -23,7 +27,11 @@ export class SummarizerDispatcher {
   }
 
   async summarizeFromFile(file: Express.Multer.File, userId: string) {
-    const job = await this.queue.add('file', { file, userId });
+    const job = await this.queue.add(
+      'file',
+      { file, userId },
+      { removeOnComplete: true, removeOnFail: true },
+    );
     this.gateway.emitJobPosition(
       job.id,
       await this.getJobPosition(job),
@@ -35,7 +43,8 @@ export class SummarizerDispatcher {
 
   private async getJobPosition(job: Job): Promise<number> {
     const waitingJobs = await this.queue.getJobs(['waiting']);
-    return waitingJobs.findIndex((j) => j.id === job.id) + 1;
+    const index = waitingJobs.findIndex((j) => j.id === job.id) + 1;
+    return index;
   }
 
   private async monitorJobPosition(job: Job, userId: string) {
@@ -46,6 +55,6 @@ export class SummarizerDispatcher {
       } else {
         clearInterval(interval);
       }
-    }, 5000);
+    }, 100);
   }
 }
