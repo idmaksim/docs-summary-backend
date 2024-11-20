@@ -75,4 +75,8 @@ export class SummarizerGateway
   async emitJobCompletion(jobId: string, summary: string, userId: string) {
     this.server.to(userId).emit('summary', { jobId, summary });
   }
+
+  async emitJobError(jobId: string, error: string, userId: string) {
+    this.server.to(userId).emit('error', { jobId, error });
+  }
 }
