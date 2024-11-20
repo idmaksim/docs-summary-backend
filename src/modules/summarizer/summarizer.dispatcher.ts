@@ -43,7 +43,8 @@ export class SummarizerDispatcher {
 
   private async getJobPosition(job: Job): Promise<number> {
     const waitingJobs = await this.queue.getJobs(['waiting']);
-    return waitingJobs.findIndex((j) => j.id === job.id) + 1;
+    const index = waitingJobs.findIndex((j) => j.id === job.id) + 1;
+    return index;
   }
 
   private async monitorJobPosition(job: Job, userId: string) {
@@ -54,6 +55,6 @@ export class SummarizerDispatcher {
       } else {
         clearInterval(interval);
       }
-    }, 5000);
+    }, 100);
   }
 }
