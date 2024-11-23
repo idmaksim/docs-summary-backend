@@ -49,13 +49,14 @@ Send a POST request to `/summarize/text` with a text in the request body.
 - **pdf-parse**: A library for working with PDF files.
 - **mammoth**: A tool for converting `.docx` to text.
 - **OpenAI Models**: Utilized for advanced text summarization capabilities.
+- **BullMQ**: Used with Redis for message queue processing related to neural network tasks, allowing users to track their position in the queue.
 
 ### 📦 Features
 
 - **Text Summarization**: API for summarizing text documents.
 - **File Support**: Supports `.txt`, `.docx`, `.doc`, and `.pdf` formats.
 - **Scalable Architecture**: Utilizes NestJS for high performance and scalability.
-- **Real-time Updates**: Real-time updates via Socket.io
+- **Real-time Updates**: Real-time updates via Socket.io, including the ability to track your position in the queue.
 - **Authentication**: JWT authentication to secure the API
 
 ### 🔧 Environment Variables
