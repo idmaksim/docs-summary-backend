@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { ModelService as ModelServiceInterface } from './model.service';
+import { ModelService } from './model.service';
 import { PROMPTS } from 'src/common/constants/prompts.enum';
 
 @Injectable()
-export class OpenAIService implements ModelServiceInterface {
+export class OpenAIService implements ModelService {
   private readonly openai: OpenAI;
 
   constructor(private readonly configService: ConfigService) {
@@ -29,6 +29,7 @@ export class OpenAIService implements ModelServiceInterface {
       const fullAnswer = answer.choices[0].message.content;
       return fullAnswer;
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

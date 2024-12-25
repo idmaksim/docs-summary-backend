@@ -30,44 +30,54 @@ export class SummarizerGateway
 
   async afterInit(server: Server) {
     this.server = server;
-    this.logger.debug('Initialized');
+    this.logger.debug('Инициализировано');
   }
 
-  private async getUserFromClient(client: Socket) {
-    const token = client.handshake.headers.authorization?.split(' ')[1];
-    this.logger.debug(`Token: ${token}`);
+  private async getUser(client: Socket) {
+    const token = this.extractToken(client);
+    this.logger.debug(`Токен: ${token}`);
     if (token) {
       try {
         const payload = await this.tokenService.verifyAccessToken(token);
         return this.usersService.findOneById(payload.id, false, false);
       } catch (error) {
-        this.logger.error(`Error verifying token: ${error}`);
-        client.emit('error', { message: 'Invalid token' });
+        this.logger.error(`Ошибка проверки токена: ${error}`);
+        this.emitError(client, 'Неверный токен');
         client.disconnect();
       }
     }
   }
 
+  private extractToken(client: Socket): string | undefined {
+    return client.handshake.headers.authorization?.split(' ')[1];
+  }
+
+  private emitError(client: Socket, message: string) {
+    client.emit('error', { message });
+  }
+
   async handleConnection(client: Socket) {
-    this.logger.debug(`Client connected: ${client.id}`);
-    const user = await this.getUserFromClient(client);
+    this.logger.debug(`Клиент подключен: ${client.id}`);
+    const user = await this.getUser(client);
     if (user) {
-      this.logger.debug(`Client ${client.id} joined room ${user.id}`);
+      this.logger.debug(
+        `Клиент ${client.id} присоединился к комнате ${user.id}`,
+      );
       client.join(user.id);
       return;
     }
-    this.logger.error('Invalid token');
-    client.emit('error', { message: 'Invalid token' });
+    this.logger.error('Неверный токен');
+    this.emitError(client, 'Неверный токен');
     client.disconnect();
   }
 
   async handleDisconnect(client: Socket) {
-    const user = await this.getUserFromClient(client);
+    const user = await this.getUser(client);
     if (user) {
-      this.logger.debug(`Client ${client.id} left room ${user.id}`);
+      this.logger.debug(`Клиент ${client.id} покинул комнату ${user.id}`);
       client.leave(user.id);
     }
-    this.logger.debug(`Client disconnected: ${client.id}`);
+    this.logger.debug(`Клиент отключен: ${client.id}`);
   }
 
   async emitJobPosition(jobId: string, position: number, userId: string) {

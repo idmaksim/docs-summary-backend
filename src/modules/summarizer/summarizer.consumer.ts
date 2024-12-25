@@ -6,45 +6,55 @@ import * as mammoth from 'mammoth';
 import * as pdf from 'pdf-parse';
 import { SummarizerGateway } from './summarizer.gateway';
 import { FileTypes } from 'src/common/constants/file-types.enum';
+import { GigachatService } from '../model/gigachat.service';
 
 @Processor('summarizer')
 export class SummarizerConsumer extends WorkerHost {
   private readonly logger = new Logger(SummarizerConsumer.name);
 
   constructor(
-    private readonly openaiService: OpenAIService,
+    private readonly gigachatService: GigachatService,
     private readonly gateway: SummarizerGateway,
   ) {
     super();
   }
 
   async process(job: Job) {
-    const processors: Record<string, (job: Job) => Promise<any>> = {
-      text: this.processText.bind(this),
-      file: this.processFile.bind(this),
-    };
-    const processor = processors[job.name];
+    const processor = this.getProcessor(job.name);
     if (!processor) {
       throw new BadRequestException('Invalid job name');
     }
     try {
       const result = await processor(job);
-      this.gateway.emitJobCompletion(job.id, result.summary, job.data.userId);
+      this.emitCompletion(job.id, result.summary, job.data.userId);
       return result;
     } catch (error) {
-      this.logger.error(error);
-      this.gateway.emitJobError(job.id, error.message, job.data.userId);
+      this.handleError(job.id, error);
     }
   }
 
-  async processText(job: Job) {
-    const text = job.data.text;
-    const summary = await this.openaiService.getAnswer(text);
+  private getProcessor(jobName: string) {
+    const processors: Record<string, (job: Job) => Promise<any>> = {
+      text: this.processText.bind(this),
+      file: this.processFile.bind(this),
+    };
+    return processors[jobName];
+  }
+
+  private async processText(job: Job) {
+    const { text } = job.data;
+    const summary = await this.gigachatService.getAnswer(text);
     return { summary };
   }
 
-  async processFile(job: Job) {
+  private async processFile(job: Job) {
     const { file } = job.data;
+    const text = await this.extractText(file);
+    const summary = await this.gigachatService.getAnswer(text);
+    return { summary };
+  }
+
+  private getFileHandler(mimetype: string) {
     const handlers: Record<
       string,
       (file: Express.Multer.File) => Promise<string>
@@ -54,13 +64,26 @@ export class SummarizerConsumer extends WorkerHost {
       [FileTypes.DOC]: this.extractTextFromDocx.bind(this),
       [FileTypes.TXT]: this.extractTextFromTxt.bind(this),
     };
-    const handler = handlers[file.mimetype];
+    return handlers[mimetype];
+  }
+
+  private async extractText(
+    file: Express.Multer.File & { buffer: { data: number[]; type: string } },
+  ) {
+    const handler = this.getFileHandler(file.mimetype);
     if (!handler) {
       throw new BadRequestException('Invalid file type');
     }
-    const text = await handler(file);
-    const summary = await this.openaiService.getAnswer(text);
-    return { summary };
+    return handler(file);
+  }
+
+  private emitCompletion(jobId: string, summary: string, userId: string) {
+    this.gateway.emitJobCompletion(jobId, summary, userId);
+  }
+
+  private handleError(jobId: string, error: any) {
+    this.logger.error(error);
+    this.gateway.emitJobError(jobId, error.message, '');
   }
 
   private async extractTextFromDocx(

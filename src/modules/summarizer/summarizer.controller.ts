@@ -27,7 +27,10 @@ export class SummarizerController {
     @Body() body: SummarizeTextDto,
     @DecodeUser() user: User,
   ) {
-    return this.summarizerDispatcher.summarizeFromText(body.text, user.id);
+    return this.summarizerDispatcher.submitTextSummarization(
+      body.text,
+      user.id,
+    );
   }
 
   @Post('file')
@@ -47,6 +50,6 @@ export class SummarizerController {
     @UploadedFile() file: Express.Multer.File,
     @DecodeUser() user: User,
   ) {
-    return this.summarizerDispatcher.summarizeFromFile(file, user.id);
+    return this.summarizerDispatcher.submitFileSummarization(file, user.id);
   }
 }

@@ -6,6 +6,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { SummarizerModule } from '../summarizer/summarizer.module';
 import { BullModule } from '@nestjs/bullmq';
+import { ModelModule } from '../model/model.module';
 
 @Module({
   imports: [
