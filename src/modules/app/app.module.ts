@@ -16,7 +16,7 @@ import { ModelModule } from '../model/model.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         connection: {
-          host: configService.get('REDIS_URL').host,
+          host: configService.get('REDIS_URL'),
         },
       }),
     }),
