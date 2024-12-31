@@ -61,14 +61,33 @@ Send a POST request to `/summarize/text` with a text in the request body.
 
 ### 🔧 Environment Variables
 
-To run the project correctly, you need to configure the following environment variables:
+The following environment variables need to be configured in the `.env` file for proper project operation:
 
-- `PORT`: The port on which the server will run (default is `3000`).
-- `DATABASE_URL`: URL for connecting to the PostgreSQL database.
-- `ACCESS_SECRET`: Secret key for generating JWT access tokens.
-- `REFRESH_SECRET`: Secret key for generating JWT refresh tokens.
-- `AI_API_KEY`: API key for accessing OpenAI.
-- `AI_API_URL`: URL for accessing the OpenAI API.
-- `REDIS_URL`: URL for connecting to Redis.
+#### Core Settings
+- `PORT`: Server port (defaults to `3000`)
+- `DATABASE_URL`: PostgreSQL database connection URL
 
-These variables can be set in a `.env` file at the root of the project.
+#### Authentication
+- `ACCESS_SECRET`: Secret key for generating JWT access tokens
+- `REFRESH_SECRET`: Secret key for generating JWT refresh tokens
+
+#### GigaChat API
+- `GIGACHAT_API_KEY`: Authorization key for GigaChat API access
+- `GIGACHAT_AUTH_URL`: URL for obtaining GigaChat authorization token
+- `GIGACHAT_BASE_URL`: Base URL for GigaChat API requests
+- `GIGACHAT_REQUEST_ID`: Unique identifier for GigaChat requests
+
+#### Redis (optional)
+- `REDIS_URL`: Redis server connection URL for queue management
+
+Example `.env` file:
+```env
+GIGACHAT_API_KEY=your_api_key
+GIGACHAT_AUTH_URL=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+GIGACHAT_BASE_URL=https://gigachat.devices.sberbank.ru/api/v1/chat/completions
+GIGACHAT_REQUEST_ID=your_request_id
+REDIS_URL=redis://localhost:6379
+REFRESH_SECRET=your_refresh_secret
+ACCESS_SECRET=your_access_secret
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+```
