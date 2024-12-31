@@ -5,8 +5,10 @@ services:
     build: .
     container_name: nestjs_app
     environment:
-      - AI_API_KEY=${AI_API_KEY}
-      - AI_API_URL=${AI_API_URL}
+      - GIGACHAT_API_KEY=${GIGACHAT_API_KEY}
+      - GIGACHAT_AUTH_URL=${GIGACHAT_AUTH_URL}
+      - GIGACHAT_BASE_URL=${GIGACHAT_BASE_URL}
+      - GIGACHAT_REQUEST_ID=${GIGACHAT_REQUEST_ID}
       - REDIS_URL=redis
       - REFRESH_SECRET=${REFRESH_SECRET}
       - ACCESS_SECRET=${ACCESS_SECRET}

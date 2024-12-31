@@ -61,7 +61,12 @@ export class UsersService {
     }
   }
 
-  private async excludePassword(user: User): Promise<UserWithoutPassword> {
+  private async excludePassword(
+    user: User,
+  ): Promise<UserWithoutPassword | null> {
+    if (!user) {
+      return null;
+    }
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
