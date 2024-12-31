@@ -1,5 +1,4 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { OpenAIService } from '../model/openai.service';
 import { Job } from 'bullmq';
 import { BadRequestException, Logger } from '@nestjs/common';
 import * as mammoth from 'mammoth';
